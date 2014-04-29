@@ -246,14 +246,15 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         # # convert strings to ints
         pidsInt = []
-        if len(pids)>0:
+        if len(pids)>0 and pids[0]!='':
             for i in pids:
                 try:
                     pidsInt.append(int(i))
-                except e:
-                    print (pid,e)
+                except:
+                    print("Pid is not integral value:", sys.exc_info()[0], i)
                     pass
-            
+        else:
+            print ("...No Pids")    
         
         # return pids
         return pidsInt
@@ -412,4 +413,3 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         print ("Port Set")
         pass
-

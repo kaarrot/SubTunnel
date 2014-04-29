@@ -1,0 +1,4 @@
+[
+    { "keys": ["ctrl+alt+enter"], "command": "sub_tunnel"},
+    { "keys": ["ctrl+alt+]"], "command": "find_houdini_sessions"}
+]
