@@ -72,28 +72,39 @@ class Tunnel():
         view = self.window.active_view()
         return view.file_name()            # None if the file is not save
 
-    def escape(self, s):
+   def escape(self, s):
 
         #char = '$'
         #pos =  s.find(char)           # replace by a regex
-        found = re.search('[$@]', s)   # search for the following and stop at first occurence
+        # found = re.search('[$@]+', s)   # search for the following and stop at first occurence
 
-        if found==None:
-            pos = -1
-        else:
-            pos = found.start()
+        # print (s)
+        print (found.group(0))
 
-        if pos != -1:
-            front = s[:pos]
-            back = s[pos:]  
-            # interleave everything with '\'
-            back = ['\%s'% c for c in back]
-            back = ''.join(back)
-            return front+back    
-        else:
-            return s
+        # s = re.sub(r'\$', r'Q', s)
+        s = s.replace('$','\$\\')
+        s = s.replace('@','\@\\')
+        # print ("after",s)
+
+        return s
+
+        # if found==None:
+        #     pos = -1
+        # else:
+        #     pos = found.start()
+
+        # if pos != -1:
+        #     front = s[:pos]
+        #     back = s[pos:]  
+        #     # interleave everything with '\'
+        #     back = ['\%s'% c for c in back]
+        #     back = ''.join(back)
+        #     print(front+back)
+        #     return front+back    
+        # else:
+        #     return s
     
-        # test: print escape("vector x = $P + 12+$e +@e - 11;", "@")
+        # test: print escape("vector x = $P + 12+$e +@e - 11;", "@") 
 
     def getCodeAsText(self):
         view = self.window.active_view()
