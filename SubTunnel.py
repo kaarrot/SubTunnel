@@ -72,14 +72,14 @@ class Tunnel():
         view = self.window.active_view()
         return view.file_name()            # None if the file is not save
 
-   def escape(self, s):
+    def escape(self, s):
 
         #char = '$'
         #pos =  s.find(char)           # replace by a regex
         # found = re.search('[$@]+', s)   # search for the following and stop at first occurence
 
         # print (s)
-        print (found.group(0))
+        # print (found.group(0))
 
         # s = re.sub(r'\$', r'Q', s)
         s = s.replace('$','\$\\')
