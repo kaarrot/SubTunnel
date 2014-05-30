@@ -74,37 +74,12 @@ class Tunnel():
 
     def escape(self, s):
 
-        #char = '$'
-        #pos =  s.find(char)           # replace by a regex
-        # found = re.search('[$@]+', s)   # search for the following and stop at first occurence
 
-        # print (s)
-        # print (found.group(0))
-
-        # s = re.sub(r'\$', r'Q', s)
         s = s.replace('$','\$\\')
         s = s.replace('@','\@\\')
-        # print ("after",s)
 
         return s
 
-        # if found==None:
-        #     pos = -1
-        # else:
-        #     pos = found.start()
-
-        # if pos != -1:
-        #     front = s[:pos]
-        #     back = s[pos:]  
-        #     # interleave everything with '\'
-        #     back = ['\%s'% c for c in back]
-        #     back = ''.join(back)
-        #     print(front+back)
-        #     return front+back    
-        # else:
-        #     return s
-    
-        # test: print escape("vector x = $P + 12+$e +@e - 11;", "@") 
 
     def getCodeAsText(self):
         view = self.window.active_view()
@@ -180,7 +155,7 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
         content = cmd_stdout.decode('ascii').strip().split('\n')
         
         # Let's filter it for now
-        content = [entry for entry in content if entry in ['PythonModule', 'PythonCook', 'VexCode']]
+        content = [entry for entry in content if entry in ['PythonModule', 'PythonCook', 'VflCode']]
         # print ("Filter Content:", content)
 
         # There may be the case when creting a HDA from a subnet that the Python section is not yet created
