@@ -12,6 +12,7 @@ supported nodes:
 import sublime, sublime_plugin
 import subprocess,sys
 import re, json, os
+import signal
 
 
 class Tunnel():
@@ -242,10 +243,11 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
     def getRunnigProcesses(self):
         cmd = "top -b -n 1 | grep -i -e hescape-bin -e hmaster-bin"
-        print (cmd)
+
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         cmd_stdout, cmd_stderr = p.communicate()   
 
+        print (cmd_stdout)
         lines = cmd_stdout.decode('ascii').strip().split('\n')
 
         pids = []
@@ -281,6 +283,7 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         for port in ports:
             print (port)
 
+        
         # get the last open port where the '*:' !!! this may not be portable !!!
         # Houdini starts up with a few open port but non of them are open to hcommand tool
 
@@ -329,17 +332,33 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
 
 
+
     def getHipName(self, port):
 
         hcommand = '%s' % self.getConfig('hcommand')
 
         cmd = '''%s %s echo \\`\\$HIPNAME''' % (hcommand, port)
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        cmd_stdout, cmd_stderr = p.communicate()   
+        print (cmd)
 
-        hipname = None
-        hipname = cmd_stdout.decode('ascii').strip()
-        
+        cmd_stdout = ""
+        cmd_stderr = ""
+        hipname = "NO CONNECTION"
+
+        signal.signal(signal.SIGALRM, self.handler)
+        signal.alarm(3)
+
+        try:
+            p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            cmd_stdout, cmd_stderr = p.communicate()
+        except: 
+            pass        
+
+
+        if cmd_stdout=='':
+            print ("No Connection on port: %s" % port)
+        else:
+            hipname = cmd_stdout.decode('ascii').strip()
+                      
         return hipname
     
 
@@ -372,11 +391,13 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
             f.write(json.dumps(options))
             pass
 
+    def handler(self, signum, frame):
+        raise IOError("No Houdini port connection")
 
     def run(self):
 
         pids = self.getRunnigProcesses()
-        # print ('PIDs',pids)
+        print ('PIDs',pids)
         
         pidsDict={}
         # session
@@ -385,11 +406,12 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
             port = self.getLastOpenPort(pid)
          
             ports['port']=port
+            print ("---------", port)
             ports['hipfile']=self.getHipName(port)
-            
+            print ("HIP", ports['hipfile'])
             pidsDict[pid] = ports
 
-        
+        #"""        
         # Build a menu options list
         portName_list = []
         port_list = []
@@ -425,3 +447,4 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         print ("Port Set")
         pass
+        #"""
