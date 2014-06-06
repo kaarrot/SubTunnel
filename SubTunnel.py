@@ -12,7 +12,7 @@ supported nodes:
 import sublime, sublime_plugin
 import subprocess,sys
 import re, json, os
-import signal
+import time
 
 
 class Tunnel():
@@ -344,14 +344,12 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         cmd_stderr = ""
         hipname = "NO CONNECTION"
 
-        signal.signal(signal.SIGALRM, self.handler)
-        signal.alarm(3)
-
-        try:
-            p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            cmd_stdout, cmd_stderr = p.communicate()
-        except: 
-            pass        
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(1)             # wait one second
+        if p.poll() == None:
+            p.terminate()
+        else:
+            cmd_stdout, cmd_stderr = p.communicate()  
 
 
         if cmd_stdout=='':
@@ -391,8 +389,6 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
             f.write(json.dumps(options))
             pass
 
-    def handler(self, signum, frame):
-        raise IOError("No Houdini port connection")
 
     def run(self):
 
