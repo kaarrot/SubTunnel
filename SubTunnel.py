@@ -274,14 +274,36 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         return pidsInt
 
     def getHoudiniPorts(self):
-        cmd = "lsof -i4"
+        cmd = "lsof -n -i4"  # -n list things faster
         print (cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         cmd_stdout, cmd_stderr = p.communicate()  
 
-        ports = cmd_stdout.decode('ascii').strip().split('\n')
-        for port in ports:
-            print (port) 
+        pids = {}
+        lines = cmd_stdout.decode('ascii').strip().split('\n')
+        for line in lines:
+            line = [x.strip() for x in line.split(' ') if x !=''] # remove whitespaces
+            # print (line)
+            bin = line[0]
+            pid = line[1]
+            port = line[8]
+
+            # keep only houdini processes
+            if bin.find('houdini')!=-1 or bin.find('hescape')!=-1:
+
+                if port.startswith("*"): # remove local addresses - TODO - platofrm specific UNIX
+                    print (bin, pid, port)
+
+                    port = int(port[2:]) # keep only digits, remove *: - TODO - platform dependant 
+                    pid = int(pid)
+                    # keep lower one
+                    if pid in pids.keys():
+                        if pids[pid] > port:  # if found lower port  - keep it
+                            pids[pid] = port
+                    else:
+                        pids[pid] = port      # if pid is not there just use it
+
+        print (pids) # gets lowest open ports of houdini sessions
 
 
     def getLastOpenPort(self, pid):
@@ -406,9 +428,9 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         pids = self.getRunnigProcesses()
         print ('PIDs',pids)
 
-        #openPorts = self.getHoudiniPorts()
+        openPorts = self.getHoudiniPorts()
         
-        
+        '''
         pidsDict={}
         # session
         for pid in pids:
@@ -457,5 +479,5 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         print ("Port Set")
         pass
-        
+        '''
         #"""
