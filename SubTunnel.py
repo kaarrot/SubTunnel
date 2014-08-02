@@ -304,6 +304,8 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
                         pids[pid] = port      # if pid is not there just use it
 
         print (pids) # gets lowest open ports of houdini sessions
+        return pids
+
 
 
     def getLastOpenPort(self, pid):
@@ -424,26 +426,27 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
 
     def run(self):
-
-        pids = self.getRunnigProcesses()
-        print ('PIDs',pids)
-
-        openPorts = self.getHoudiniPorts()
         
-        '''
         pidsDict={}
-        # session
-        for pid in pids:
+
+        #pids = self.getRunnigProcesses()
+        #print ('PIDs',pids)
+        #
+        ## session
+        #for pid in pids:                        # old way 
+        #    port = self.getLastOpenPort(pid)  # 
+                    
+        pids = self.getHoudiniPorts()
+
+        for pid,port in pids.items():
             ports = {'port':-1,'hipfile':''}         # pids ports
-            port = self.getLastOpenPort(pid)
-         
             ports['port']=port
-            print ("---------", port)
             ports['hipfile']=self.getHipName(port)
-            print ("HIP", ports['hipfile'])
             pidsDict[pid] = ports
 
-        #"""        
+
+        print ("---", pidsDict)
+                
         # Build a menu options list
         portName_list = []
         port_list = []
@@ -479,5 +482,5 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         print ("Port Set")
         pass
-        '''
+        
         #"""
