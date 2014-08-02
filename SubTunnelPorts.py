@@ -14,10 +14,9 @@ def getConfig(opt):
 
     return options[opt]
 
-
-def getHoudiniPorts():
-    ''' 
-        Extracts lowest port of currently running houdini processes.
+def portsLinux(pids):
+	'''
+	    Extracts lowest port of currently running houdini processes.
         
         Make susre to run "openport -a" hscript command from Houdini before 
         Otherwise connection will not be possible
@@ -26,38 +25,43 @@ def getHoudiniPorts():
         TODO - Instead of picking up the lowest port we can test all the ports for connection. 
         The one where connectino goes through (there will be only one if openport -a is run)
         is the correct port 
+	'''
+	cmd = "lsof -n -i4"  # -n list things faster
+    # print (cmd)
 
+	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+	cmd_stdout, cmd_stderr = p.communicate()  
+	lines = cmd_stdout.decode('ascii').strip().split('\n')
+	for line in lines:
+		line = [x.strip() for x in line.split(' ') if x !=''] # remove whitespaces
+		# print (line)
+		bin = line[0]
+		pid = line[1]
+		port = line[8]
+		# keep only houdini processes
+		if bin.find('houdini')!=-1 or bin.find('hescape')!=-1:
+			if port.startswith("*"): # remove local addresses - TODO - platofrm specific UNIX
+				print (bin, pid, port)
+				port = int(port[2:]) # keep only digits, remove *: - TODO - platform dependant 
+				pid = int(pid)
+				# keep lower one
+				if pid in pids.keys():
+					if pids[pid] > port:  # if found lower port  - keep it
+						pids[pid] = port
+				else:
+					pids[pid] = port      # if pid is not there just use it
+	print (pids) # gets lowest open ports of houdini sessions
+	return pids
+
+def getHoudiniPorts():
+    ''' 
+    	Use platform specif-c commad to access all currently opened ports
     '''
-    cmd = "lsof -n -i4"  # -n list things faster
-    print (cmd)
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-    cmd_stdout, cmd_stderr = p.communicate()  
-
     pids = {}
-    lines = cmd_stdout.decode('ascii').strip().split('\n')
-    for line in lines:
-        line = [x.strip() for x in line.split(' ') if x !=''] # remove whitespaces
-        # print (line)
-        bin = line[0]
-        pid = line[1]
-        port = line[8]
+    if sys.platform.find('linux')!=-1:
+    	pids = portsLinux(pids)
+    
 
-        # keep only houdini processes
-        if bin.find('houdini')!=-1 or bin.find('hescape')!=-1:
-
-            if port.startswith("*"): # remove local addresses - TODO - platofrm specific UNIX
-                print (bin, pid, port)
-
-                port = int(port[2:]) # keep only digits, remove *: - TODO - platform dependant 
-                pid = int(pid)
-                # keep lower one
-                if pid in pids.keys():
-                    if pids[pid] > port:  # if found lower port  - keep it
-                        pids[pid] = port
-                else:
-                    pids[pid] = port      # if pid is not there just use it
-
-    print (pids) # gets lowest open ports of houdini sessions
     return pids
 
 def getHipName( port):
