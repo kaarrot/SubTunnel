@@ -14,7 +14,7 @@ def getConfig(opt):
 
     return options[opt]
 
-def portsLinux(pids):
+def portsPosix(pids):
 	'''
 	    Extracts lowest port of currently running houdini processes.
         
@@ -58,8 +58,8 @@ def getHoudiniPorts():
     	Use platform specif-c commad to access all currently opened ports
     '''
     pids = {}
-    if sys.platform.find('linux')!=-1:
-    	pids = portsLinux(pids)
+    if os.name=='posix':
+    	pids = portsPosix(pids)
     
 
     return pids
