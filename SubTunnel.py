@@ -242,7 +242,7 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
    
 
     def getRunnigProcesses(self):
-        cmd = "top -b -n 1 | grep -i -e hescape-bin -e hmaster-bin"
+        cmd = "top -b -n 1 | grep -i -e hescape-bin -e hmaster-bin -e houdini -e hescape"
 
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         cmd_stdout, cmd_stderr = p.communicate()   
@@ -272,6 +272,17 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         
         # return pids
         return pidsInt
+
+    def getHoudiniPorts(self):
+        cmd = "lsof -i4"
+        print (cmd)
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd_stdout, cmd_stderr = p.communicate()  
+
+        ports = cmd_stdout.decode('ascii').strip().split('\n')
+        for port in ports:
+            print (port) 
+
 
     def getLastOpenPort(self, pid):
         cmd = "lsof -a -p%s -i4" % pid
@@ -394,6 +405,9 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         pids = self.getRunnigProcesses()
         print ('PIDs',pids)
+
+        #openPorts = self.getHoudiniPorts()
+        
         
         pidsDict={}
         # session
@@ -443,4 +457,5 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         print ("Port Set")
         pass
+        
         #"""
