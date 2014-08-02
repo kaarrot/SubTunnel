@@ -16,7 +16,6 @@ import time
 
 import SubTunnel.SubTunnelPorts as subPorts
 
-
 class Tunnel():
     def __init__(self,window,port):
         self.window = window
@@ -32,7 +31,7 @@ class Tunnel():
         #print ("path: ",self.nodePath, "\ntype: ", self.selection, "\n\n")
 
     def getConfig(self, opt):
-        ''' loads the config stuff'''
+        ''' loads the config '''
         plugin_path = '%s/SubTunnel' % (sublime.packages_path())
         config = '%s/config.json' % plugin_path
         
@@ -43,7 +42,7 @@ class Tunnel():
         return options[opt]
 
     def getNodeType(self):
-        # get the selected node type
+        ''' get the selected node type '''
         # Note a special treatment of backticks (bash specifics)
         cmd = ''' %s "optype -t opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand
         #print ("hscript cmd:", cmd)
@@ -61,7 +60,7 @@ class Tunnel():
         return selection
 
     def getNodePath(self):
-        # get the node path
+        ''' get the node path '''
         cmd = ''' %s "opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand      # no space between \"/\"\`o
         #print (cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -74,7 +73,7 @@ class Tunnel():
         return view.file_name()            # None if the file is not save
 
     def escape(self, s):
-
+        ''' Special cases - escaping required for correct parsing in the shell '''
 
         s = s.replace('$','\$\\')
         s = s.replace('@','\@\\')
@@ -83,6 +82,8 @@ class Tunnel():
 
 
     def getCodeAsText(self):
+        ''' Introduce escape characters to avoid misinterpretation by the shell '''
+
         view = self.window.active_view()
         codeText = view.substr(sublime.Region(0, view.size()))
 
@@ -97,7 +98,6 @@ class Tunnel():
 
             temp.append(y)
         codeText = ''.join(temp)
-
 
         codeText = codeText.replace("\n", "\\n")         # escape new line at the end of the line
         codeText = codeText.replace("\"", "\\\\\\\"")    # crazy - double escaping
@@ -167,7 +167,7 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
         return content
 
     def hdaRun(self,choice,hdaOptions,tunnel,tableAndOpName):
-        # No support for the vex HDA in SOPs - requires to change         
+        # Currently there is no support for the vex context in vex HDA SOP          
         if choice!=-1:              # -1 is set when pressed ESC
             cmd = ''' %s  \"otcontentadd %s %s %s \"''' %(tunnel.hcommand, tableAndOpName, hdaOptions[choice], tunnel.filePath)
             print ("HDA update CMD",cmd)        
@@ -227,6 +227,9 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
 
 
 class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
+    '''
+        This section allows user to pick the desired Houdini session to connect to
+    '''
 
     def run(self):
         
