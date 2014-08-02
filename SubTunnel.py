@@ -1,6 +1,6 @@
 """
 SubTunnel
-Kuba Roth: 140427
+Kuba Roth: 140801
 Info:
 A Sublime plugin to send code snippets into running Houdini session
 supported nodes:
@@ -13,6 +13,7 @@ import sublime, sublime_plugin
 import subprocess,sys
 import re, json, os
 import time
+
 
 
 class Tunnel():
@@ -86,7 +87,7 @@ class Tunnel():
         view = self.window.active_view()
         codeText = view.substr(sublime.Region(0, view.size()))
 
-        # Treat \n in the strings diferently then new lines at the end of the line
+        # Treat \n in the strings differently then new lines at the end of the line
         temp = []
         textSplited = re.split('((?s)".*?")', codeText)
         for x in textSplited:
@@ -241,39 +242,44 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         return options[opt]
    
 
-    def getRunnigProcesses(self):
-        cmd = "top -b -n 1 | grep -i -e hescape-bin -e hmaster-bin -e houdini -e hescape"
+    # def getRunnigProcesses(self):
+    #     cmd = "top -b -n 1 | grep -i -e hescape-bin -e hmaster-bin -e houdini -e hescape"
 
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        cmd_stdout, cmd_stderr = p.communicate()   
+    #     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    #     cmd_stdout, cmd_stderr = p.communicate()   
 
-        print (cmd_stdout)
-        lines = cmd_stdout.decode('ascii').strip().split('\n')
+    #     print (cmd_stdout)
+    #     lines = cmd_stdout.decode('ascii').strip().split('\n')
 
-        pids = []
-        for line in lines:   
-            line = line.strip()           # remove leading whitesaces, or split command may sometimes fail
-                                          # depending on the pid id and the order they appear
-            pid = line.split(' ')[0]
-            pids.append(pid)
+    #     pids = []
+    #     for line in lines:   
+    #         line = line.strip()           # remove leading whitesaces, or split command may sometimes fail
+    #                                       # depending on the pid id and the order they appear
+    #         pid = line.split(' ')[0]
+    #         pids.append(pid)
 
 
-        # # convert strings to ints
-        pidsInt = []
-        if len(pids)>0 and pids[0]!='':
-            for i in pids:
-                try:
-                    pidsInt.append(int(i))
-                except:
-                    print("Pid is not integral value:", sys.exc_info()[0], i)
-                    pass
-        else:
-            print ("...No Pids")    
+    #     # # convert strings to ints
+    #     pidsInt = []
+    #     if len(pids)>0 and pids[0]!='':
+    #         for i in pids:
+    #             try:
+    #                 pidsInt.append(int(i))
+    #             except:
+    #                 print("Pid is not integral value:", sys.exc_info()[0], i)
+    #                 pass
+    #     else:
+    #         print ("...No Pids")    
         
-        # return pids
-        return pidsInt
+    #     # return pids
+    #     return pidsInt
 
     def getHoudiniPorts(self):
+        ''' 
+            Extract lowest port of currently running houdini processes - this ma not always be true.
+            TODO - test all the ports for connection. One of the ports (usaually above 30000)
+            will not be accessible
+        '''
         cmd = "lsof -n -i4"  # -n list things faster
         print (cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -308,62 +314,62 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
 
 
-    def getLastOpenPort(self, pid):
-        cmd = "lsof -a -p%s -i4" % pid
-        print (cmd)
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        cmd_stdout, cmd_stderr = p.communicate()   
+    # def getLastOpenPort(self, pid):
+    #     cmd = "lsof -a -p%s -i4" % pid
+    #     print (cmd)
+    #     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    #     cmd_stdout, cmd_stderr = p.communicate()   
 
-        ports = cmd_stdout.decode('ascii').strip().split('\n')
-        for port in ports:
-            print (port)
+    #     ports = cmd_stdout.decode('ascii').strip().split('\n')
+    #     for port in ports:
+    #         print (port)
 
         
-        # get the last open port where the '*:' !!! this may not be portable !!!
-        # Houdini starts up with a few open port but non of them are open to hcommand tool
+    #     # get the last open port where the '*:' !!! this may not be portable !!!
+    #     # Houdini starts up with a few open port but non of them are open to hcommand tool
 
-        # Option 2  - TODO need to add timeout in case the port from houdini has not been opened
-        # (Above may not be needed if below works len(ports_list)<=1 )
-        # In this case hcommand is retrying and the subprocess waits indefinitely
-        # As a temporary solution (This is optimal for now) we can narrow down the search port <30000
-        # TODO on other machines what is the safe port threshold not to interfere with other open houdini ports             
+    #     # Option 2  - TODO need to add timeout in case the port from houdini has not been opened
+    #     # (Above may not be needed if below works len(ports_list)<=1 )
+    #     # In this case hcommand is retrying and the subprocess waits indefinitely
+    #     # As a temporary solution (This is optimal for now) we can narrow down the search port <30000
+    #     # TODO on other machines what is the safe port threshold not to interfere with other open houdini ports             
         
-        openport = None
-        ports_list = []
-        for port in ports:
-            # print (port)
-            if port.find('*:')!=-1:
-                openport = int(port.split('*:')[1].split(' ')[0])
-                ports_list.append(openport)
+    #     openport = None
+    #     ports_list = []
+    #     for port in ports:
+    #         # print (port)
+    #         if port.find('*:')!=-1:
+    #             openport = int(port.split('*:')[1].split(' ')[0])
+    #             ports_list.append(openport)
 
-        # make sure the openport -a command has been call beforehand
-        # otherwise the only open ports on houdini's end are:
-        #  TCP *:52453 (LISTEN)               ----> No Response
-        #  TCP localhost:14726 (LISTEN)       ----> ignored by SubTunnel
+    #     # make sure the openport -a command has been call beforehand
+    #     # otherwise the only open ports on houdini's end are:
+    #     #  TCP *:52453 (LISTEN)               ----> No Response
+    #     #  TCP localhost:14726 (LISTEN)       ----> ignored by SubTunnel
 
-        # The proper list of ports should look as follow,
-        # TCP *:52453 (LISTEN)
-        # TCP *:28258 (LISTEN)
-        # TCP localhost:14726 (LISTEN)
+    #     # The proper list of ports should look as follow,
+    #     # TCP *:52453 (LISTEN)
+    #     # TCP *:28258 (LISTEN)
+    #     # TCP localhost:14726 (LISTEN)
 
-        # Note that with openport -a houdini reuses already open port
-        # and doesn't start a new one
+    #     # Note that with openport -a houdini reuses already open port
+    #     # and doesn't start a new one
 
-        ports_list = sorted(ports_list)
-        if len(ports_list)<=1:
-            openport = None
-        else:
-            openport = ports_list[0]         # sort and pick up the lowest number
+    #     ports_list = sorted(ports_list)
+    #     if len(ports_list)<=1:
+    #         openport = None
+    #     else:
+    #         openport = ports_list[0]         # sort and pick up the lowest number
 
 
-        print (openport)
+    #     print (openport)
 
-        if openport == None:
-            print ("Houdini session %s has no openport" % pid)
-        else:
-            print ("found open %s " % openport)
+    #     if openport == None:
+    #         print ("Houdini session %s has no openport" % pid)
+    #     else:
+    #         print ("found open %s " % openport)
 
-        return openport
+    #     return openport
 
 
 
@@ -424,30 +430,9 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
             f.write(json.dumps(options))
             pass
 
+    def buildPortList(self,pidsDict):
+        ''' Build a menu options list '''
 
-    def run(self):
-        
-        pidsDict={}
-
-        #pids = self.getRunnigProcesses()
-        #print ('PIDs',pids)
-        #
-        ## session
-        #for pid in pids:                        # old way 
-        #    port = self.getLastOpenPort(pid)  # 
-                    
-        pids = self.getHoudiniPorts()
-
-        for pid,port in pids.items():
-            ports = {'port':-1,'hipfile':''}         # pids ports
-            ports['port']=port
-            ports['hipfile']=self.getHipName(port)
-            pidsDict[pid] = ports
-
-
-        print ("---", pidsDict)
-                
-        # Build a menu options list
         portName_list = []
         port_list = []
         for pid, ports in pidsDict.items():
@@ -474,6 +459,31 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
             print (i)
         # for i in port_list:
         #     print (i)
+        return portName_list
+
+    def run(self):
+        
+        pidsDict={}
+
+        #pids = self.getRunnigProcesses()
+        #print ('PIDs',pids)
+        #
+        ## session
+        #for pid in pids:                        # old way 
+        #    port = self.getLastOpenPort(pid)  # 
+                    
+        pids = self.getHoudiniPorts()
+
+        for pid,port in pids.items():
+            ports = {'port':-1,'hipfile':''}         # pids ports
+            ports['port']=port
+            ports['hipfile']=self.getHipName(port)
+            pidsDict[pid] = ports
+
+
+        print ("---", pidsDict)
+                
+        portName_list = self.buildPortList(pidsDict) # Build list 
 
         # pidsDict consist all the collected information
         print ("All Pids:", pidsDict)
