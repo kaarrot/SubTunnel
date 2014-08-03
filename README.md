@@ -19,3 +19,30 @@ OSX:
 	/Library/Frameworks/Houdini.framework/Resources/bin/hcommand
 Windows:
 	TBD
+
+
+##### Windows #####
+
+download git: http://msysgit.github.io/
+download python 3.4.1: https://www.python.org/downloads/
+
+git clone https://github.com/kubaroth/SubTunnel.git
+
+Make sure to update python build for sublime:
+C:\Documents and Settings\standard\Desktop\Sublime Text Build 3059 x64\Data\Packages\User\Python3-win.sublime-build
+
+If you just installed sublime in ..\Data\Packages\User\
+create: Python3-win.sublime-build file and put:
+{
+	"cmd": ["C:\\python34\\python.exe", "-u", "$file"],
+	"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+	"selector": "source.python"
+}
+
+
+edit SubTunel config
+"C:\Program Files\Side Effects Software\Houdini 9.0.858\bin\hcommand"
+
+Call from the 
+"C:\Program Files\Side Effects Software\Houdini 9.0.858\bin\hcommand" -h
+
