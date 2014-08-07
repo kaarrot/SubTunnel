@@ -44,7 +44,9 @@ class Tunnel():
     def getNodeType(self):
         ''' get the selected node type '''
         # Note a special treatment of backticks (bash specifics)
-        cmd = ''' %s "optype -t opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand
+        # cmd = ''' %s "optype -t opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand
+        cmd = r''' %s "optype -t opfind -N "/"\`opselectrecurse(\"/\",0)\`" ''' % self.hcommand   # raw works too
+
         #print ("hscript cmd:", cmd)
 
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -57,11 +59,14 @@ class Tunnel():
             print ("=== nothing selected ===")
         print (selection)
 
+
         return selection
 
     def getNodePath(self):
         ''' get the node path '''
-        cmd = ''' %s "opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand      # no space between \"/\"\`o
+        # cmd = ''' %s "opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand      # no space between \"/\"\`o
+        cmd = r''' %s "opfind -N "/"\`opselectrecurse(\"/\",0)\`" ''' % self.hcommand      # raw works too
+
         #print (cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         cmd_stdout, cmd_stderr = p.communicate()           
@@ -75,8 +80,22 @@ class Tunnel():
     def escape(self, s):
         ''' Special cases - escaping required for correct parsing in the shell '''
 
-        s = s.replace('$','\$\\')
-        s = s.replace('@','\@\\')
+        s = s.replace(r"\n", r"\\\\n")         # escape new line inside the quotes
+
+        s = s.replace(r'$',r'\$')
+        s = s.replace(r'@',r'\@')
+        s = s.replace(r'#',r'\#')
+        s = s.replace(r'%',r'\%')
+        s = s.replace(r'^',r'\^')
+        s = s.replace(r'&',r'\&')
+        s = s.replace(r'`',r'\`')
+
+        # s = s.replace(r"'",r"\'")
+        # s = s.replace(r'"',r'\"')
+
+        s=s.replace("\n", "\\n")
+        
+        s=s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
 
         return s
 
@@ -91,16 +110,10 @@ class Tunnel():
         temp = []
         textSplited = re.split('((?s)".*?")', codeText)
         for x in textSplited:
-            y = x.replace(r"\n", r"\\\\n")         # escape new line inside the quotes
-            y = self.escape(y)
+            x = self.escape(x)
 
-            # print (x, y)
-
-            temp.append(y)
-        codeText = ''.join(temp)
-
-        codeText = codeText.replace("\n", "\\n")         # escape new line at the end of the line
-        codeText = codeText.replace("\"", "\\\\\\\"")    # crazy - double escaping
+            temp.append(x)
+        codeText = r''.join(temp)
 
 
         '''
