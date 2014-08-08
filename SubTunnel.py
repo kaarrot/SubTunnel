@@ -45,10 +45,16 @@ class Tunnel():
         ''' get the selected node type '''
         # Note a special treatment of backticks (bash specifics)
         # cmd = ''' %s "optype -t opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand
-        cmd = r''' %s "optype -t opfind -N "/"\`opselectrecurse(\"/\",0)\`" ''' % self.hcommand   # raw works too
+        
+        # This is just a regular hscript command you would launch from hscript shell in houdini
+        hscriptCmd = r'''optype -t opfind -N `opselectrecurse("/",0)'''
+        hscriptCmd = subPorts.escape(hscriptCmd, 1)
 
-        #print ("hscript cmd:", cmd)
-
+        # the command gets wrapped with double-quates - required by bash 
+        # and prepanded with full path hcommand
+        cmd = r'''%s "%s"''' % (self.hcommand,hscriptCmd)
+        print ("CMD getNodeType:", cmd)
+    
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         cmd_stdout, cmd_stderr = p.communicate()           
         
@@ -57,21 +63,28 @@ class Tunnel():
 
         if selection == '':
             print ("=== nothing selected ===")
-        print (selection)
-
+        
+        print ("Node type: " ,selection)
 
         return selection
 
     def getNodePath(self):
         ''' get the node path '''
         # cmd = ''' %s "opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand      # no space between \"/\"\`o
-        cmd = r''' %s "opfind -N "/"\`opselectrecurse(\"/\",0)\`" ''' % self.hcommand      # raw works too
+        # cmd = r''' %s "opfind -N "/"\`opselectrecurse(\"/\",0)\`" ''' % self.hcommand      # raw works too
 
-        #print (cmd)
+        hscriptCmd = r'''opfind -N "/"`opselectrecurse("/",0)''' # Hscript command
+        hscriptCmd = subPorts.escape(hscriptCmd, 1)
+        cmd = r'''%s "%s"''' % (self.hcommand,hscriptCmd)
+
+        print ("CMD getNodePath:", cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        cmd_stdout, cmd_stderr = p.communicate()           
+        cmd_stdout, cmd_stderr = p.communicate()    
+
+        nodePath = cmd_stdout.decode('ascii').strip()  
+        print ("Node path: " ,nodePath) 
         
-        return cmd_stdout.decode('ascii').strip()
+        return nodePath
 
     def getFilePath(self):
         view = self.window.active_view()
@@ -160,8 +173,12 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
     def hdaRun(self,choice,hdaOptions,tunnel,tableAndOpName):
         # Currently there is no support for the vex context in vex HDA SOP          
         if choice!=-1:              # -1 is set when pressed ESC
-            cmd = ''' %s  \"otcontentadd %s %s %s \"''' %(tunnel.hcommand, tableAndOpName, hdaOptions[choice], tunnel.filePath)
-            print ("HDA update CMD",cmd)        
+
+            hscriptCmd = r'''otcontentadd %s %s %s''' % (tableAndOpName, hdaOptions[choice], tunnel.filePath) # Hscript command
+            hscriptCmd = subPorts.escape(hscriptCmd, 1)
+            cmd = r'''%s "%s"''' % (tunnel.hcommand,hscriptCmd)
+
+            print ("CMD - HDA update",cmd)        
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             
     def run(self):
@@ -176,20 +193,35 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
         # print (h.getCodeAsText)
         # print ('HIP',h.hipfile)
         
-        if h.nodeType in ['attribwrangle', 'pointwrangle', 'volumewrangle', 'popwrangle']:                        # wrangle nodes
-            cmd = ''' %s  \"opparm %s snippet \\"%s\\" \"''' %(h.hcommand, h.nodePath,h.codeAsText)    
-            # print (cmd)
+        if h.nodeType in ['attribwrangle', 'pointwrangle', 'volumewrangle', 'popwrangle']:  # VEX WRANGLE nodes
+
+
+            hscriptCmd = r'''opparm %s snippet \"%s\"''' % (h.nodePath,h.codeAsText) # Hscript command + \"  around already escaped code
+            # hscriptCmd = subPorts.escape(hscriptCmd, 1)                            # No espcing here - the code already is escaped
+            cmd = r'''%s "%s"''' % (h.hcommand,hscriptCmd)
+
+            # cmd = ''' %s  \"opparm %s snippet \\"%s\\" \"''' %(h.hcommand, h.nodePath,h.codeAsText)    
+
+            print ("CMD - vexsop", cmd)
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             cmd_stdout, cmd_stderr = p.communicate()   
 
-        elif h.nodeType in ['inline']:                        # inline VOPSOP - same as wrangle nodes but with different param name
-            cmd = ''' %s  \"opparm %s code \\"%s\\" \"''' %(h.hcommand, h.nodePath,h.codeAsText)    
-            # print (cmd)
+        elif h.nodeType in ['inline']:                       # INLINE VEX VOPSOP - same as wrangle nodes but with different param name
+            # cmd = ''' %s  \"opparm %s code \\"%s\\" \"''' %(h.hcommand, h.nodePath,h.codeAsText)    
+            
+            hscriptCmd = r'''opparm %s code \"%s\"''' % (h.nodePath,h.codeAsText)  # just and escape around codeAsText                         
+            cmd = r'''%s "%s"''' % (h.hcommand,hscriptCmd)
+
+            print ("CMD inline", cmd)
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             cmd_stdout, cmd_stderr = p.communicate()   
 
-        elif h.nodeType == "python":                        # python sop
-            cmd = ''' %s  \"opparm %s python \\"%s\\" \"''' %(h.hcommand, h.nodePath,h.codeAsText)    # 2x backslash to have \" in terminal
+        elif h.nodeType == "python":                        # PYTHON SOP
+            # cmd = ''' %s  \"opparm %s python \\"%s\\" \"''' %(h.hcommand, h.nodePath,h.codeAsText)    # 2x backslash to have \" in terminal
+
+            hscriptCmd = r'''opparm %s python \"%s\"''' % (h.nodePath,h.codeAsText)  # just and escape around codeAsText                          
+            cmd = r'''%s "%s"''' % (h.hcommand,hscriptCmd)
+            print ("CMD python sop", cmd)
  
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             cmd_stdout, cmd_stderr = p.communicate()     

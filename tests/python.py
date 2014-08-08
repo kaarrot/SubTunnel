@@ -18,3 +18,13 @@ for p in geo.points():
 	print "---+--\n--"\n
 	"|"|
 "\.[A-za-z0-9]*+\\"
+
+
+
+    @temp
+
+    cmd = r'''%s %s echo $HIPNAME''' % (hcommand, port)
+    print ("getHipName CMD ""
+    cmd = escape(cmd)
+    ====++===+---!!!
+    as,,,===x

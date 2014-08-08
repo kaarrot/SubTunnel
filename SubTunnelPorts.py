@@ -64,7 +64,7 @@ def getHoudiniPorts():
 
     return pids
 
-def escape(s):
+def escape(s,hscript=0):
     ''' Special cases - escaping required for correct parsing in the shell '''
 
     # special cases 
@@ -73,11 +73,16 @@ def escape(s):
     s = s.replace(r"\n", r"!;") # new line string      
     s = s.replace('\\','~(')
 
-    s = s.replace(r'`',r'\\\`')
+    if hscript == 0:
+        s = s.replace(r'`',r'\\\`')
+        s = s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
 
-    # s = s.replace(r"\n", r"\\\\n") 
+    else:
+        # The Hscript option gets exectuted only at the shell
+        # hence it does not require to escape twice
+        s = s.replace(r'`',r'\`')
+        s = s.replace(r'"', r'\"')    
     
-    s=s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
 
     s = s.replace(r'$',r'\$') # this is for pasing $ in bash 
     s = s.replace(r'@',r'\@')
@@ -112,7 +117,7 @@ def getHipName( port):
     #	   /opt/hfs13.0.237/bin/hcommand 12846 echo $HIPNAME
 
     cmd = r'''%s %s echo $HIPNAME''' % (hcommand, port)
-    print ("getHipName CMD: ", cmd)
+    print ("CMD getHipName: ", cmd)
     cmd = escape(cmd)
 
     cmd_stdout = ""
