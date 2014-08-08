@@ -80,22 +80,32 @@ class Tunnel():
     def escape(self, s):
         ''' Special cases - escaping required for correct parsing in the shell '''
 
-        s = s.replace(r"\n", r"\\\\n")         # escape new line inside the quotes
+        # special cases 
+        # temporary form to avoid replacing backslashes in the next  
+        s = s.replace("\n", "~;")   # real newline in code
+        s = s.replace(r"\n", r"!;") # new line string      
+        s = s.replace('\\','~(')
 
-        s = s.replace(r'$',r'\$')
-        s = s.replace(r'@',r'\@')
-        s = s.replace(r'#',r'\#')
-        s = s.replace(r'%',r'\%')
-        s = s.replace(r'^',r'\^')
-        s = s.replace(r'&',r'\&')
-        s = s.replace(r'`',r'\`')
+        s = s.replace(r'`',r'\\\`')
+
+        # s = s.replace(r"\n", r"\\\\n") 
+        
+        s=s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
+
+        # s = s.replace(r'$',r'\$')
+        # s = s.replace(r'@',r'\@')
+        # s = s.replace(r'#',r'\#')
+        # s = s.replace(r'%',r'\%')
+        # s = s.replace(r'^',r'\^')
+        # s = s.replace(r'&',r'\&')
 
         # s = s.replace(r"'",r"\'")
         # s = s.replace(r'"',r'\"')
 
-        s=s.replace("\n", "\\n")
-        
-        s=s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
+        # convert back to proper escaped symbol
+        s = s.replace('~(',r'\\\\')
+        s = s.replace("~;", "\\n")      # real newline in code
+        s = s.replace(r"!;", r"\\\\n")  # new line string (inside the quotes)
 
         return s
 
