@@ -14,6 +14,7 @@ for p in geo.points():
 	# print "'"
 	# print '"'
 	(print `)
+	print "%s ___" % (ttt)
 	print "---+--\n--"\n
 	"|"|
 "\.[A-za-z0-9]*+\\"

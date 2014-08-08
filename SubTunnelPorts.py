@@ -64,12 +64,56 @@ def getHoudiniPorts():
 
     return pids
 
+def escape(s):
+    ''' Special cases - escaping required for correct parsing in the shell '''
+
+    # special cases 
+    # temporary form to avoid replacing backslashes in the next  
+    s = s.replace("\n", "~;")   # real newline in code
+    s = s.replace(r"\n", r"!;") # new line string      
+    s = s.replace('\\','~(')
+
+    s = s.replace(r'`',r'\\\`')
+
+    # s = s.replace(r"\n", r"\\\\n") 
+    
+    s=s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
+
+    s = s.replace(r'$',r'\$') # this is for pasing $ in bash 
+    s = s.replace(r'@',r'\@')
+    # s = s.replace(r'#',r'\#')
+    # s = s.replace(r'%',r'\%')
+    # s = s.replace(r'^',r'\^')
+    # s = s.replace(r'&',r'\&')
+
+    # s = s.replace(r"'",r"\'")
+    # s = s.replace(r'"',r'\"')
+
+    # convert back to proper escaped symbol
+    s = s.replace('~(',r'\\\\')
+    s = s.replace("~;", "\\n")      # real newline in code
+    s = s.replace(r"!;", r"\\\\n")  # new line string (inside the quotes)
+
+    return s
+
 def getHipName( port):
 
     hcommand = '%s' % getConfig('hcommand')
 
-    cmd = '''%s %s echo \\`\\$HIPNAME''' % (hcommand, port)
-    print (cmd)
+    #cmd = '''%s %s echo \\`\\$HIPNAME''' % (hcommand, port)   # original escaped command
+    #test = "/opt/hfs13.0.237/bin/hcommand 12846 echo $HIPNAME" # hscript command 
+    
+    #NOTE: Testing from command line expects more escaping:
+    #	   /opt/hfs13.0.237/bin/hcommand 12846 echo \`\$HIPNAME
+    # 
+    #	   Whereas testing from hscrip on houdini or passing from sublime:
+    #	   There is no need to prepend $ with backtick and add escapes
+    #
+    #	   /opt/hfs13.0.237/bin/hcommand 12846 echo $HIPNAME
+
+    cmd = r'''%s %s echo $HIPNAME''' % (hcommand, port)
+    print ("getHipName CMD: ", cmd)
+    cmd = escape(cmd)
 
     cmd_stdout = ""
     cmd_stderr = ""

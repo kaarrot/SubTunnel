@@ -77,38 +77,6 @@ class Tunnel():
         view = self.window.active_view()
         return view.file_name()            # None if the file is not save
 
-    def escape(self, s):
-        ''' Special cases - escaping required for correct parsing in the shell '''
-
-        # special cases 
-        # temporary form to avoid replacing backslashes in the next  
-        s = s.replace("\n", "~;")   # real newline in code
-        s = s.replace(r"\n", r"!;") # new line string      
-        s = s.replace('\\','~(')
-
-        s = s.replace(r'`',r'\\\`')
-
-        # s = s.replace(r"\n", r"\\\\n") 
-        
-        s=s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
-
-        # s = s.replace(r'$',r'\$')
-        # s = s.replace(r'@',r'\@')
-        # s = s.replace(r'#',r'\#')
-        # s = s.replace(r'%',r'\%')
-        # s = s.replace(r'^',r'\^')
-        # s = s.replace(r'&',r'\&')
-
-        # s = s.replace(r"'",r"\'")
-        # s = s.replace(r'"',r'\"')
-
-        # convert back to proper escaped symbol
-        s = s.replace('~(',r'\\\\')
-        s = s.replace("~;", "\\n")      # real newline in code
-        s = s.replace(r"!;", r"\\\\n")  # new line string (inside the quotes)
-
-        return s
-
 
     def getCodeAsText(self):
         ''' Introduce escape characters to avoid misinterpretation by the shell '''
@@ -120,7 +88,7 @@ class Tunnel():
         temp = []
         textSplited = re.split('((?s)".*?")', codeText)
         for x in textSplited:
-            x = self.escape(x)
+            x = subPorts.escape(x)
 
             temp.append(x)
         codeText = r''.join(temp)
