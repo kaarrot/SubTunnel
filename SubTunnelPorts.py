@@ -77,6 +77,10 @@ def escape(s,hscript=0):
         s = s.replace(r'`',r'\\\`')
         s = s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
         s = s.replace(r'$',r'\\$')     # escapint $ in $HIPNAME on OSX
+        
+        # s = s.replace(r'$',r'`$')     # escapint "$" - (standalone $ does not work)  i the code on WIN
+        #      TODO - in windows shell "$", $ behaves inconsistent
+        #             hance't found a way to escape it
 
     elif hscript ==1:
         # The Hscript option gets exectuted only at the shell
@@ -85,8 +89,15 @@ def escape(s,hscript=0):
         s = s.replace(r'"', r'\"')
         s = s.replace(r'$',r'\$') # this is for pasing $ in bash 
 
-    elif hscript==2: # Windows - dont escape backtic in hsript commands
+    elif hscript==2: # Windows - dont escape backtick in hsript commands
         # s = s.replace(r'`',r'\`')
+        s = s.replace(r'"', r'\"')
+        s = s.replace(r'$',r'`$') # this is for pasing $ in bash 
+    
+    elif hscript==3: # Windows - code as text
+        # s = s.replace(r'`',r'\`')
+        #TODO: "..." - strings are not supported
+        # $test - inline vex variables work
         s = s.replace(r'"', r'\"')
         s = s.replace(r'$',r'\$') # this is for pasing $ in bash 
     

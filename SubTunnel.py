@@ -111,7 +111,11 @@ class Tunnel():
         temp = []
         textSplited = re.split('((?s)".*?")', codeText)
         for x in textSplited:
-            x = subPorts.escape(x)
+            if os.name=='posix':
+                x = subPorts.escape(x)
+            else:
+                x = subPorts.escape(x,3)   # WIN - code as text
+            
 
             temp.append(x)
         codeText = r''.join(temp)
