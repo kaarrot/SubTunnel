@@ -76,15 +76,17 @@ def escape(s,hscript=0):
     if hscript == 0:
         s = s.replace(r'`',r'\\\`')
         s = s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
+        s = s.replace(r'$',r'\\$')     # escapint $ in $HIPNAME on OSX
 
     else:
         # The Hscript option gets exectuted only at the shell
         # hence it does not require to escape twice
         s = s.replace(r'`',r'\`')
-        s = s.replace(r'"', r'\"')    
+        s = s.replace(r'"', r'\"')
+        s = s.replace(r'$',r'\$') # this is for pasing $ in bash 
     
 
-    s = s.replace(r'$',r'\$') # this is for pasing $ in bash 
+     
     s = s.replace(r'@',r'\@')
     # s = s.replace(r'#',r'\#')
     # s = s.replace(r'%',r'\%')
@@ -117,8 +119,9 @@ def getHipName( port):
     #	   /opt/hfs13.0.237/bin/hcommand 12846 echo $HIPNAME
 
     cmd = r'''%s %s echo $HIPNAME''' % (hcommand, port)
+
     print ("CMD getHipName: ", cmd)
-    cmd = escape(cmd)
+    cmd = escape(cmd,1)
 
     cmd_stdout = ""
     cmd_stderr = ""
