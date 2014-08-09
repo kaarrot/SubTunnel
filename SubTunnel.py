@@ -48,7 +48,8 @@ class Tunnel():
         
         # This is just a regular hscript command you would launch from hscript shell in houdini
         hscriptCmd = r'''optype -t opfind -N `opselectrecurse("/",0)'''
-        hscriptCmd = subPorts.escape(hscriptCmd, 1)
+        # hscriptCmd = r'''optype -t opfind -N "/"opselectrecurse("/",0)'''  # change on WIN
+        hscriptCmd = subPorts.escape(hscriptCmd, 2)
 
         # the command gets wrapped with double-quates - required by bash 
         # and prepanded with full path hcommand
@@ -74,7 +75,7 @@ class Tunnel():
         # cmd = r''' %s "opfind -N "/"\`opselectrecurse(\"/\",0)\`" ''' % self.hcommand      # raw works too
 
         hscriptCmd = r'''opfind -N "/"`opselectrecurse("/",0)''' # Hscript command
-        hscriptCmd = subPorts.escape(hscriptCmd, 1)
+        hscriptCmd = subPorts.escape(hscriptCmd, 2)
         cmd = r'''%s "%s"''' % (self.hcommand,hscriptCmd)
 
         print ("CMD getNodePath:", cmd)

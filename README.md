@@ -41,8 +41,10 @@ create: Python3-win.sublime-build file and put:
 
 
 edit SubTunel config
-"C:\Program Files\Side Effects Software\Houdini 9.0.858\bin\hcommand"
+"\"C:\\Program Files\\Side Effects Software\\Houdini 9.0.858\\bin\\hcommand\""
 
 Call from the 
 "C:\Program Files\Side Effects Software\Houdini 9.0.858\bin\hcommand" -h
 
+# windows escaping
+C:\Documents and Settings\standard>"C:\Program Files\Side Effects Software\Houdini 9.0.858\bin\hcommand" 10865 "echo `$HIPNAME"
