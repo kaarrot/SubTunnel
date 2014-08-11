@@ -1,7 +1,8 @@
-
-# python
-node = hou.pwd()
-geo = node.geometry()
+$test
+"..\n_ww"
+@
+5/4
+abc $bbb
 
 for p in geo.points():
 	# print p

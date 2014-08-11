@@ -48,3 +48,7 @@ Call from the
 
 # windows escaping
 C:\Documents and Settings\standard>"C:\Program Files\Side Effects Software\Houdini 9.0.858\bin\hcommand" 10865 "echo `$HIPNAME"
+
+NOTES:
+ - Escaping ", \ in windows shell is a nightmare! More complex regex with a lot of escaping may not work properly on WIN
+   That may require further editing (escape function , case 3 - # Windows - code as text)

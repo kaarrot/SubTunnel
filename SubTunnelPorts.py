@@ -67,13 +67,15 @@ def getHoudiniPorts():
 def escape(s,hscript=0):
     ''' Special cases - escaping required for correct parsing in the shell '''
 
-    # special cases 
-    # temporary form to avoid replacing backslashes in the next  
-    s = s.replace("\n", "~;")   # real newline in code
-    s = s.replace(r"\n", r"!;") # new line string      
-    s = s.replace('\\','~(')
+
 
     if hscript == 0:
+        # special cases 
+        # temporary form to avoid replacing backslashes in the next  
+        s = s.replace("\n", "~;")   # real newline in code
+        s = s.replace(r"\n", r"!;") # new line string      
+        s = s.replace('\\','~(')
+
         s = s.replace(r'`',r'\\\`')
         s = s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
         s = s.replace(r'$',r'\\$')     # escapint $ in $HIPNAME on OSX
@@ -81,6 +83,13 @@ def escape(s,hscript=0):
         # s = s.replace(r'$',r'`$')     # escapint "$" - (standalone $ does not work)  i the code on WIN
         #      TODO - in windows shell "$", $ behaves inconsistent
         #             hance't found a way to escape it
+
+
+        # Generic cade as text unix
+        s = s.replace('~(',r'\\\\')
+        s = s.replace("~;", "\\n")      # real newline in code
+        s = s.replace(r"!;", r"\\\\n")  # new line string (inside the quotes)
+
 
     elif hscript ==1:
         # The Hscript option gets exectuted only at the shell
@@ -95,15 +104,37 @@ def escape(s,hscript=0):
         s = s.replace(r'$',r'`$') # this is for pasing $ in bash 
     
     elif hscript==3: # Windows - code as text
+
+        s = s.replace("\n", "~;")   # real newline in code
+        s = s.replace(r"\n", r"!;") # new line string 
+        s = s.replace('"', '~q2')    # double quote    "..\n_ww"
+     
+        # s = s.replace('\\','~(')  # on win backslash does not need escapeing
+        s = s.replace(r'$',r'~S') # this is for pasing $ in WIN cmd
+        # s = s.replace('\\','~3') # escape outside qutes 
+
+        # "\
+        # \"
+
         # s = s.replace(r'`',r'\`')
         #TODO: "..." - strings are not supported
         # $test - inline vex variables work
-        s = s.replace(r'"', r'\"')
-        s = s.replace(r'$',r'\$') # this is for pasing $ in bash 
-    
+        s = s.replace(r'\\',r'~2') # 2 backslashes  "\.[A-za-z0-9]*+\\"  
+        s = s.replace('\\','~1') # 1 backslash  
 
+
+        # s = s.replace('~(',r'\\\\') 
+        s = s.replace('~;','\\\"\\n\\\"') # preserve \n in  WIN shell
+        s = s.replace('!;','"\\n"')       # new line string (inside the quotes)
+        s = s.replace('~S','"\$"')
+        # s = s.replace('~3',r'\\\\\\')
+        s = s.replace('~2',r'\\\\\\\\')
+        s = s.replace('~1','\\')   # 1 backlash outside the quotes
+        # s = s.replace('~1',r'\\\\\\')   # 1 backlash inside the quotes "\.[A-za-z0-9]*+\\"  
+
+        s = s.replace('~q2','\\\\\\"')
      
-    s = s.replace(r'@',r'\@')
+    # s = s.replace(r'@',r'\@')
     # s = s.replace(r'#',r'\#')
     # s = s.replace(r'%',r'\%')
     # s = s.replace(r'^',r'\^')
@@ -112,10 +143,6 @@ def escape(s,hscript=0):
     # s = s.replace(r"'",r"\'")
     # s = s.replace(r'"',r'\"')
 
-    # convert back to proper escaped symbol
-    s = s.replace('~(',r'\\\\')
-    s = s.replace("~;", "\\n")      # real newline in code
-    s = s.replace(r"!;", r"\\\\n")  # new line string (inside the quotes)
 
     return s
 
