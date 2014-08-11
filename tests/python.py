@@ -5,19 +5,19 @@ $test
 abc $bbb
 
 for p in geo.points():
-	# print p
-	print "$",$
-	print "@",@
-	print "%",%
-	print "#",#
-	print "^",^
-	print "&",&
-	# print "'"
-	# print '"'
-	(print `)
-	print "%s ___" % (ttt)
-	print "---+--\n--"\n
-	"|"|
+    # print p
+    print "$",$
+    print "@",@
+    print "%",%
+    print "#",#
+    print "^",^
+    print "&",&
+    # print "'"
+    # print '"'
+    (print `)
+    print "%s ___" % (ttt)
+    print "---+--\n--"\n
+    "|"|
 "\.[A-za-z0-9]*+\\"
 
 

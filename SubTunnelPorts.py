@@ -78,7 +78,7 @@ def escape(s,hscript=0):
 
         s = s.replace(r'`',r'\\\`')
         s = s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
-        s = s.replace(r'$',r'\\$')     # escapint $ in $HIPNAME on OSX
+        s = s.replace(r'$',r'\\\$')     # escapint $ in $HIPNAME on OSX
         
         # s = s.replace(r'$',r'`$')     # escapint "$" - (standalone $ does not work)  i the code on WIN
         #      TODO - in windows shell "$", $ behaves inconsistent
