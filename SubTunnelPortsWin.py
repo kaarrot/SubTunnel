@@ -105,31 +105,41 @@ def getHipNameWin( port):
 
 ##################################
 
-pids = getPidsWin()
-print (pids)
-pids = getPortsWin(pids)
-print (pids)
+def getHPorts():
+    ''' returns the dictionary of process IDs of 
+        opened ports and associated scene file names of houdini process
+        This is slower but the ideal way since since each open connection 
+        on houdini's end is test - and blocked ports are removed from the list 
+    '''
+
+    pids = getPidsWin()
+    print (pids)
+    pids = getPortsWin(pids)
+    print (pids)
 
 
-pidsPortOpen = {} # collect just first available
-for pid,ports in pids.items():
-    connections = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        future = executor.map(getHipNameWin, ports)
-        connections = (list(future))
-    
-    print (pid, connections)
+    pidsPortOpen = {} # collect just first available
+    for pid,ports in pids.items():
+        connections = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            future = executor.map(getHipNameWin, ports)
+            connections = (list(future))
+        
+        print (pid, connections)
 
 
-    for c in enumerate(connections):
-        i = c[0]
-        fileName = c[1]
-        if fileName != 'NO CONNECTION' and  fileName !='':  
-            # print ("+++", c, fileName != 'NO CONNECTION')  # find the first open port
-            break
-            
-    print ("--- port ", ports[i])
-    pidsPortOpen[pid] = ports[i]
+        for c in enumerate(connections):
+            i = c[0]
+            fileName = c[1]
+            if fileName != 'NO CONNECTION' and  fileName !='':  
+                # print ("+++", c, fileName != 'NO CONNECTION')  # find the first open port
+                break
+        
 
+        t = {'port': ports[i],'hipfile':fileName}
+        # print ("--- port ", ports[i])
+        print ("+++",pid, t)
+        pidsPortOpen[pid] = t
 
-print (pidsPortOpen)
+    #print ("open Houdini ports: ", pidsPortOpen)
+    return pidsPortOpen

@@ -15,6 +15,7 @@ import re, json, os
 import time
 
 import SubTunnel.SubTunnelPorts as subPorts
+import SubTunnel.SubTunnelPortsWin as subWinPorts
 
 class Tunnel():
     def __init__(self,window,port):
@@ -270,17 +271,21 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
     def run(self):
         
-        pidsDict={}
-
-        pids = subPorts.getHoudiniPorts()
         
-        for pid,port in pids.items():
-            ports = {'port':-1,'hipfile':''}         # pids ports
-            ports['port']=port
-            ports['hipfile']=subPorts.getHipName(port)
-            pidsDict[pid] = ports
+        if os.name=='posix':
+            pidsDict={}
 
+            pids = subPorts.getHoudiniPorts()
+            
+            for pid,port in pids.items():
+                ports = {'port':-1,'hipfile':''}         # pids ports
+                ports['port']=port
+                ports['hipfile']=subPorts.getHipName(port)
+                pidsDict[pid] = ports
 
+        else:
+            pidsDict = subWinPorts.getHPorts()
+        
         print ("---", pidsDict)
                 
         portName_list = subPorts.buildPortList(pidsDict) # Build list 
@@ -290,6 +295,8 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         self.window.show_quick_panel(portName_list, lambda id:  subPorts.savePort(id,pidsDict) ,sublime.MONOSPACE_FONT)
              
         print ("Port Set")
+
+        
         pass
         
         
