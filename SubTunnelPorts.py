@@ -13,7 +13,7 @@ def getPort():
 
     return options['port']
 
-def getConfig(opt):
+def getConfig(opt=None):
     ''' loads the config stuff'''
     plugin_path = '%s/SubTunnel' % (sublime.packages_path())
     config = '%s/config.json' % plugin_path
@@ -22,7 +22,16 @@ def getConfig(opt):
         f=open(config).read()
         options = json.loads(f)
 
-    return options[opt]
+
+    if opt!=None:
+        val = None
+        if opt in list(options.keys()) :
+            val = options[opt]
+    else:
+        # return all config
+        val = options
+
+    return val
 
 def portsPosix(pids):
 	'''

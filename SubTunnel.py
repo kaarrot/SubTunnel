@@ -295,14 +295,30 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
         pass
 
 class ShelfToolCommand(sublime_plugin.WindowCommand):
+    '''
+        Send the code into one of the existing shelf tools
+        Name the tool has to set before
+    '''
 
-    def run(self):
+    def on_done(self, shelfToolName):
 
+        ### Update config with new tool name
+        configAll = subPorts.getConfig()
+        configAll['shelftool'] = shelfToolName
+        # print(configAll)
+
+        plugin_path = '%s/SubTunnel' % (sublime.packages_path())
+        config = '%s/config.json' % plugin_path
+        f = open(config, 'w')
+        f.write(json.dumps(configAll))
+        f.close()
+
+        ### Send the code
         port = subPorts.getPort()
         h = Tunnel(self.window,port) 
 
         code = h.codeAsText
-        python = "hou.shelves.tools()['tool_4'].setData('%s')" % code
+        python = "hou.shelves.tools()['%s'].setData('%s')" % (shelfToolName,code)
         hscriptCmd = r'''python -c \"%s\"''' % python
         
 
@@ -310,6 +326,20 @@ class ShelfToolCommand(sublime_plugin.WindowCommand):
 
         print ("CMD shelf:", cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        cmd_stdout, cmd_stderr = p.communicate()    
+        cmd_stdout, cmd_stderr = p.communicate()  
+
+
+    def run(self):
+
+        prevShelfTool = subPorts.getConfig('shelftool')
+        print (prevShelfTool)
+        if prevShelfTool == None:
+            prevShelfTool="_"
+
+        self.window.show_input_panel("Shelf Tool Name:",prevShelfTool,self.on_done,None,None)
+        # self.window.show_quick_panel(portName_list, lambda id:  subPorts.savePort(id,pidsDict) ,sublime.MONOSPACE_FONT)
+
+
+
 
         pass
