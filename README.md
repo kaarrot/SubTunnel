@@ -8,18 +8,18 @@ supported nodes:
 * Shelftools
 
 
-== Get the plugin ==
+## Get the plugin ##
 
-
-:Either directly clone the github repo:
- git clone https://github.com/kubaroth/SubTunnel.git
-:or:
-:* download zip file 
-:* put it in the ~/.config/sublime-text-3/Packages folder (at least on Linux)
-:* rename SubTunnel-master to SubTunnel
+- Either directly clone the github repo:
+  - git clone https://github.com/kubaroth/SubTunnel.git
+- or:
+  - download zip file 
+  - put it in the ~/.config/sublime-text-3/Packages folder (at least on Linux)
+  - rename SubTunnel-master to SubTunnel
 
 Before calling the plugin for the first time make sure to update the path to hcustom in the config.json. The hcustom is located in $HFS/bin.
- 
+
+```
 Example locations:
  Linux:
  	/opt/hfs13.0.237/bin/hcommand
@@ -27,9 +27,9 @@ Example locations:
  	/Library/Frameworks/Houdini.framework/Resources/bin/hcommand
  Windows:
  	"\"C:\\Program Files\\Side Effects Software\\Houdini 9.0.858\\bin\\hcommand\""
+```
 
-
-== Windows Setup ==
+## Windows Setup ##
 
 A few more steps are requitred to get started on Windows
 Make sure you have latest python 3.4 installed
@@ -38,13 +38,14 @@ Make sure you have latest python 3.4 installed
 * C:\Documents and Settings\standard\Desktop\Sublime Text Build 3059 x64\Data\Packages\User\Python3-win.sublime-build
 
 If you just installed sublime in ..\Data\Packages\User\
-create: Python3-win.sublime-build file and put:
+create **Python3-win.sublime-build** file with:
+``` 
  {
  "cmd": ["C:\\python34\\python.exe", "-u", "$file"],
  "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
  "selector": "source.python"
  }
-
+```
 
 If you want clone direclty from github - get git:
 * http://msysgit.github.io/
