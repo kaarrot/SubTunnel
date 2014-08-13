@@ -15,7 +15,6 @@ import re, json, os
 import time
 
 import SubTunnel.SubTunnelPorts as subPorts
-import SubTunnel.SubTunnelPortsWin as subWinPorts
 
 class Tunnel():
     def __init__(self,window,port):
@@ -284,7 +283,13 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
                 pidsDict[pid] = ports
 
         else:
-            pidsDict = subWinPorts.getHPorts()
+            pidsDict = {}
+            try:
+                import SubTunnel.SubTunnelPortsWin as subWinPorts
+                pidsDict = subWinPorts.getHPorts()
+            except:
+                pass
+
         
         print ("---", pidsDict)
                 
@@ -298,5 +303,4 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         
         pass
-        
         
