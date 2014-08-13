@@ -140,16 +140,6 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
         Probably because the SubTunnelCommand is a special type of class and Sublime does some stuff under the hood
     '''
 
-    def getPort(self):
-        plugin_path = '%s/SubTunnel' % (sublime.packages_path())
-        config = '%s/config.json' % plugin_path
-        
-
-        f=open(config).read()
-        options = json.loads(f)
-
-        return options['port']
-
     def getTableAndOpName(self,hcommand, nodePath):
         ''' get the Table (parent network type) and the HDA type name used by otcontentadd '''
         tableAndOpName = '_'
@@ -197,7 +187,7 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
             
     def run(self):
 
-        port = self.getPort()
+        port = subPorts.getPort()
 
         h = Tunnel(self.window,port)   
 
@@ -303,4 +293,24 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         
         pass
+
+class ShelfToolCommand(sublime_plugin.WindowCommand):
+
+    def run(self):
+
+        port = subPorts.getPort()
+        h = Tunnel(self.window,port)   
+
+
+        code = 'eee'
+        python = "hou.shelves.tools()['tool_3'].setData('%s')" % code
+        hscriptCmd = r'''python -c \"%s\"''' % python
         
+
+        cmd = r'''%s "%s"''' % (h.hcommand,hscriptCmd)
+
+        print ("CMD shelf:", cmd)
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd_stdout, cmd_stderr = p.communicate()    
+
+        pass

@@ -6,5 +6,9 @@
     {
         "caption": "Tunnel Sessions",
         "command": "find_houdini_sessions"
+    },
+    {
+        "caption": "Tunnel Shelf Tool",
+        "command": "shelf_tool"
     }
 ]

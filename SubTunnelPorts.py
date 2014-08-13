@@ -3,6 +3,16 @@ import subprocess,sys
 import re, json, os
 import time
 
+
+def getPort():
+    plugin_path = '%s/SubTunnel' % (sublime.packages_path())
+    config = '%s/config.json' % plugin_path
+    
+    f=open(config).read()
+    options = json.loads(f)
+
+    return options['port']
+
 def getConfig(opt):
     ''' loads the config stuff'''
     plugin_path = '%s/SubTunnel' % (sublime.packages_path())
