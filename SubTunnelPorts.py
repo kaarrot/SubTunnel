@@ -119,7 +119,7 @@ def escape(s,hscript=0):
         # s = s.replace(r'`',r'\`')
         #TODO: "..." - strings are not supported
         # $test - inline vex variables work
-        s = s.replace(r'\\',r'~2') # 2 backslashes  "\.[A-za-z0-9]*+\\"  
+        s = s.replace('\\\\','~2') # 2 backslashes  "\.[A-za-z0-9]*+\\"  
         s = s.replace('\\','~1') # 1 backslash  
 
 
@@ -129,20 +129,15 @@ def escape(s,hscript=0):
         s = s.replace('~S','"\$"')
         # s = s.replace('~3',r'\\\\\\')
         s = s.replace('~2',r'\\\\\\\\')
-        s = s.replace('~1','\\')   # 1 backlash outside the quotes
+        s = s.replace('~1',r'\\')   # 1 backlash outside the quotes
         # s = s.replace('~1',r'\\\\\\')   # 1 backlash inside the quotes "\.[A-za-z0-9]*+\\"  
 
         s = s.replace('~q2','\\\\\\"')
+
+        s = s.replace('|','^|')
+        s = s.replace('&','^&')
+        s = s.replace('^','^^')
      
-    # s = s.replace(r'@',r'\@')
-    # s = s.replace(r'#',r'\#')
-    # s = s.replace(r'%',r'\%')
-    # s = s.replace(r'^',r'\^')
-    # s = s.replace(r'&',r'\&')
-
-    # s = s.replace(r"'",r"\'")
-    # s = s.replace(r'"',r'\"')
-
 
     return s
 
