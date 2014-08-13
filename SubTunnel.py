@@ -299,11 +299,10 @@ class ShelfToolCommand(sublime_plugin.WindowCommand):
     def run(self):
 
         port = subPorts.getPort()
-        h = Tunnel(self.window,port)   
+        h = Tunnel(self.window,port) 
 
-
-        code = 'eee'
-        python = "hou.shelves.tools()['tool_3'].setData('%s')" % code
+        code = h.codeAsText
+        python = "hou.shelves.tools()['tool_4'].setData('%s')" % code
         hscriptCmd = r'''python -c \"%s\"''' % python
         
 
