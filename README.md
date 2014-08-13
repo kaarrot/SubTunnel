@@ -7,20 +7,17 @@ supported nodes:
 * OTLS: code/script tabs in any context (SOP,OBJ,ROP ...) 
 * Shelftools
 
-#####
-==Get the plugin:==
- Either directly clone the github repo:
-    git clone https://github.com/kubaroth/SubTunnel.git
- or:
-    download zip file 
-    put it in the ~/.config/sublime-text-3/Packages folder (at least on Linux)
-    rename SubTunnel-master to SubTunnel
- ####
+== Get the plugin: ==
+Either directly clone the github repo:
+ git clone https://github.com/kubaroth/SubTunnel.git
+or:
+* download zip file 
+* put it in the ~/.config/sublime-text-3/Packages folder (at least on Linux)
+* rename SubTunnel-master to SubTunnel
 
- Before calling the plugin for the first time make sure to update 
- the path to hcustom in the config.json. The hcustom is located in $HFS/bin.
+Before calling the plugin for the first time make sure to update the path to hcustom in the config.json. The hcustom is located in $HFS/bin.
  
- Example locations:
+Example locations:
  Linux:
  	/opt/hfs13.0.237/bin/hcommand
  OSX:
