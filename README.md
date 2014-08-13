@@ -7,8 +7,8 @@ supported nodes:
 * OTLS: code/script tabs in any context (SOP,OBJ,ROP ...) 
 * Shelftools
 
- #####
- Get the plugin:
+#####
+==Get the plugin:==
  Either directly clone the github repo:
     git clone https://github.com/kubaroth/SubTunnel.git
  or:
@@ -29,7 +29,7 @@ supported nodes:
  	"\"C:\\Program Files\\Side Effects Software\\Houdini 9.0.858\\bin\\hcommand\""
 
 
-##### Windows Setup #####
+== Windows Setup ==
 
 A few more steps are requitred to get started on Windows
 Make sure you have latest python 3.4 installed
