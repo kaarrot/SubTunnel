@@ -7,6 +7,8 @@ supported nodes:
 * OTLS: code/script tabs in any context (SOP,OBJ,ROP ...) 
 * Shelftools
 
+## Overview ##
+https://vimeo.com/103876297
 
 ## Get the plugin ##
 
