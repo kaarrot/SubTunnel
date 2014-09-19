@@ -94,6 +94,7 @@ def escape(s,hscript=0):
         s = s.replace("\n", "~;")   # real newline in code
         s = s.replace(r"\n", r"!;") # new line string      
         s = s.replace('\\','~(')
+        s = s.replace('\'','~,')
 
         s = s.replace(r'`',r'\\\`')
         s = s.replace(r'"', r'\\\"')    # previously # s=s.replace("\"", "\\\\\\\"")
@@ -108,7 +109,7 @@ def escape(s,hscript=0):
         s = s.replace('~(',r'\\\\')
         s = s.replace("~;", "\\n")      # real newline in code
         s = s.replace(r"!;", r"\\\\n")  # new line string (inside the quotes)
-
+        s = s.replace('~,','\\\'')
 
     elif hscript ==1:
         # The Hscript option gets exectuted only at the shell
