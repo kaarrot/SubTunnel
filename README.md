@@ -12,11 +12,11 @@ https://vimeo.com/103876297
 
 ## Get the plugin ##
 
-- change directory to:
-	Linux
-  		cd $HOME/.config/sublime_text_3/Packages
-	OSX:
-  		cd $HOME/Library/Application\ Support/Sublime\ Text\ 3/Packages
+- cd directory to:
+  - Linux
+  	- cd $HOME/.config/sublime_text_3/Packages
+  - OSX:
+    - cd $HOME/Library/Application\ Support/Sublime\ Text\ 3/Packages
 
 - Then either directly clone the github repo (recommended):
   - git clone https://github.com/kubaroth/SubTunnel.git
