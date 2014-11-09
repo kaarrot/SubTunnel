@@ -39,10 +39,11 @@ Example locations:
 ```
 
 ## Key Bindings ##
+```
  ctrl+alt+]                    - Connects to running Houdini session   
  ctrl+alt+enter                - Sends code snippet to a node
  ctrl+alt+\                    - Sends code snippet to a shelf tool
-
+```
 
 ## Windows Setup ##
 
