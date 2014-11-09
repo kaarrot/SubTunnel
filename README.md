@@ -38,6 +38,12 @@ Example locations:
  	"\"C:\\Program Files\\Side Effects Software\\Houdini 9.0.858\\bin\\hcommand\""
 ```
 
+## Key Bindings ##
+ ctrl+alt+]                    - Connects to running Houdini session   
+ ctrl+alt+enter                - Sends code snippet to a node
+ ctrl+alt+\                    - Sends code snippet to a shelf tool
+
+
 ## Windows Setup ##
 
 A few more steps are requitred to get started on Windows
