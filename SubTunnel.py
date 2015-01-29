@@ -47,7 +47,7 @@ class Tunnel():
         # cmd = ''' %s "optype -t opfind -N \"/\"\`opselectrecurse(\\"/\\",0)\`" ''' % self.hcommand
         
         # This is just a regular hscript command you would launch from hscript shell in houdini
-        hscriptCmd = r'''optype -t opfind -N `opselectrecurse("/",0)'''
+        hscriptCmd = r'''optype -t opfind -N /`opselectrecurse("/",0)'''
         # hscriptCmd = r'''optype -t opfind -N "/"opselectrecurse("/",0)'''  # change on WIN
         
         if os.name=='posix':
