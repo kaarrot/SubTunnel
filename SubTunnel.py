@@ -274,11 +274,11 @@ class FindHoudiniSessionsCommand(sublime_plugin.WindowCommand):
 
         else:
             pidsDict = {}
-            try:
-                import SubTunnel.SubTunnelPortsWin as subWinPorts
-                pidsDict = subWinPorts.getHPorts()
-            except:
-                pass
+            import SubTunnel.SubTunnelPortsWin as subWinPorts
+            from imp import reload
+            reload(subWinPorts)
+            pidsDict = subWinPorts.getHPorts()
+
 
         
         print ("---", pidsDict)
