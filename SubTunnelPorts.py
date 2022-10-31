@@ -145,7 +145,7 @@ def escape(s,hscript=0):
 
         # s = s.replace('~(',r'\\\\') 
         s = s.replace('~;','\\\"\\n\\\"') # preserve \n in  WIN shell
-        s = s.replace('!;','"\\n"')       # new line string (inside the quotes)
+        s = s.replace('!;','"\\\\n"')       # new line string (inside the quotes)
         s = s.replace('~S','"\$"')
         # s = s.replace('~3',r'\\\\\\')
         s = s.replace('~2',r'\\\\\\\\')
