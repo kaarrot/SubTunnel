@@ -154,9 +154,11 @@ def escape(s,hscript=0):
 
         s = s.replace('~q2','\\\\\\"')
 
-        s = s.replace('|','^|')
-        s = s.replace('&','^&')
-        s = s.replace('^','^^')
+        s = s.replace('<', '\"<\"')
+        s = s.replace('>', '\">\"')
+        s = s.replace('&', '\"&\"')
+        s = s.replace('|', '\"|\"')
+        s = s.replace('^', '\"^\"')
      
 
     return s
