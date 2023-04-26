@@ -2,6 +2,9 @@ import os
 import subprocess
 import concurrent.futures
 import time
+import re
+
+from .SubTunnelPorts import getConfig
 
 '''
     On windows netstat -ab run as subprocess thoufh python does not identify process name
@@ -80,53 +83,57 @@ def getPortsWin(pids):
     selection  = ' '.join([x.strip() for x in selection.split(' ') if x!=''])  # remove separator whitespaces
     selection = selection.split('TCP')  # the line we are interested in start with TCP
 
-    #                       Port                                           PID
-    # TCP    complete_name:10845    complete_name:0        LISTENING       844
     for pid in pids.keys():
+        # print ("Process pid:", pid)
+        selection = subprocess_stream(cmd, None, pid)
+        # print("Found process with port:", selection)
+        #                       Port                                           PID
+        # TCP    0.0.0.0:10845    complete_name:0        LISTENING       844
         ports = []
         for line in selection:
-            if line.find(pid)!=-1:
-                # print (line)
-                line = line.strip()
-                port = line.split(' ')[0]
-                port = int(port.split(':')[-1])
-                # print (port)
-                ports.append(port)
+            found = re.search('(0.0.0.0):[0-9]+', line)
+            if not found:
+                continue
 
-        # print (ports)
-        ports = sorted(list(set(ports)))  # remove duplicates and sort
+            port = found.group()    
+            port = int(port.split(':')[-1]) # extract port number
+            ports.append(port)
 
-        pids[pid]=ports
+        pids[pid] = list(set(ports)) # remove dups
+    
+    print ("Found pid {0}, ports:".format(pid, ports))
 
     return pids
 
-def getHipNameWin( port):
+def getHipNameWin(port):
 
-    hcommand = r'''"C:\Program Files\Side Effects Software\Houdini 9.0.858\bin\hcommand"'''
+    hcommand = '%s' % getConfig('hcommand')
 
-
-    cmd = '''%s %s echo `$HIPNAME''' % (hcommand, port)
-    # print (cmd)
+    cmd = '''%s %s echo `$HIPNAME`''' % (hcommand, port)
+    print ("CMD", cmd)
 
     cmd_stdout = ""
     cmd_stderr = ""
     hipname = "NO CONNECTION"
 
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-    time.sleep(2) # when calling with concurent.futures the timeout should be larger then 1 second
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    time.sleep(1) # when calling with concurent.futures the timeout should be larger then 1 second
     if p.poll() == None:
-        p.terminate()
-    else:
-        cmd_stdout, cmd_stderr = p.communicate()
+        print ("terminate", port)
+        p.terminate() # Does not work with shell=True in Popen
+        return None
 
+    cmd_stdout, cmd_stderr = p.communicate()
+    if cmd_stderr != b'':
+        print(cmd_stderr)
 
     if cmd_stdout=='':
         # print ("No Connection on port: %s" % port)
         pass
     else:
         hipname = cmd_stdout.decode('ascii').strip()
-                  
     return hipname
+
 
 ##################################
 
@@ -142,28 +149,25 @@ def getHPorts():
     pids = getPortsWin(pids)
     print (pids)
 
-
+    # At this point we have Dictionary of pids, where each key have a list of open ports.
+    # By elimination - we will probe each port and send a requesst to read Hipfile path.
+    # If the reponse does not come back we assume the port is not active.
     pidsPortOpen = {} # collect just first available
-    for pid,ports in pids.items():
-        connections = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            future = executor.map(getHipNameWin, ports)
-            connections = (list(future))
-        
-        print (pid, connections)
+    for pid, ports in pids.items():
+        hipname = None
+        open_port = -1 
+        for port in ports:
+            hipname = getHipNameWin(port)
+            if not hipname:
+                continue
+            else:
+                open_port = port
 
+        if not hipname:
+            print("No open port found for pid", pid)
+        # print ("connections", pid, connections)
 
-        for c in enumerate(connections):
-            i = c[0]
-            fileName = c[1]
-            if fileName != 'NO CONNECTION' and  fileName !='':  
-                # print ("+++", c, fileName != 'NO CONNECTION')  # find the first open port
-                break
-        
-
-        t = {'port': ports[i],'hipfile':fileName}
-        # print ("--- port ", ports[i])
-        print ("+++",pid, t)
+        t = {'port': open_port,'hipfile':hipname}
         pidsPortOpen[pid] = t
 
     #print ("open Houdini ports: ", pidsPortOpen)

@@ -20,14 +20,13 @@ class Tunnel():
     def __init__(self,window,port):
         self.window = window
         self.port = port
-        self.hcommand = '%s %s' % (self.getConfig('hcommand'), self.port)
+        self.hython_path = self.getConfig('hcommand')
+        self.hcommand = '%s %s' % (self.hython_path, self.port)
         self.hipfile = '%s' % (self.getConfig('hipfile'))                   # path to current $HIP
-
         self.nodeType = self.getNodeType()
         self.nodePath = self.getNodePath()
         self.filePath = self.getFilePath()                                  # path to the temporary code file
         self.codeAsText = self.getCodeAsText()
-
         #print ("path: ",self.nodePath, "\ntype: ", self.selection, "\n\n")
 
     def getConfig(self, opt):
@@ -110,6 +109,8 @@ class Tunnel():
         # Treat \n in the strings differently then new lines at the end of the line
         temp = []
         textSplited = re.split('((?s)".*?")', codeText)
+        # textSplited = re.split('^.*$[\n]"', codeText)
+
         for x in textSplited:
             if os.name=='posix':
                 x = subPorts.escape(x)
@@ -174,6 +175,33 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
 
         return content
 
+    def buildPowershellCmd(self, h, hscriptCmd):
+        """This is method addresses limitation of CMD which has been truncating sent source code.
+        We We no longer launch CMD from subprocess, instead on Windows we use Powershell.
+        """
+
+        # NOTE: We cant rely on tempfile.gettempdir() as it returns lower case path.
+        #       Since this is Windows only - access env variable directly.
+        os_temp_dir = os.getenv("TEMP")
+        serialized_code_file = '{0}/sublime_houdini_tunnel.txt'.format(os_temp_dir)
+        
+        with open(serialized_code_file, 'w') as f:
+            f.write('"{0}"'.format(hscriptCmd)) # wrap output in double quotes
+
+        # print("serialize opparm args into: ", serialized_code_file)
+
+        # Build path to the Powershell script - same location as this script
+        this_dir = os.path.split("{0}".format(__file__))[0]
+        # NOTE: Subsequent arguments after PORT are serialized into a file - as this is the only way to handle 
+        #       quotes and escape sequences in the source code.
+        cmd = '''powershell -File "{0}/tunnel_houdini.ps1" {1} {2}'''.format(
+            this_dir,
+            h.hython_path,
+            h.port
+            )
+
+        return cmd
+
     def hdaRun(self,choice,hdaOptions,tunnel,tableAndOpName):
         # Currently there is no support for the vex context in vex HDA SOP          
         if choice!=-1:              # -1 is set when pressed ESC
@@ -182,7 +210,6 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
             hscriptCmd = subPorts.escape(hscriptCmd, 1)
             cmd = r'''%s "%s"''' % (tunnel.hcommand,hscriptCmd)
 
-            print ("CMD - HDA update",cmd)        
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             
     def run(self):
@@ -206,7 +233,10 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
 
             # cmd = ''' %s  \"opparm %s snippet \\"%s\\" \"''' %(h.hcommand, h.nodePath,h.codeAsText)    
 
-            print ("CMD - vexsop", cmd)
+            if os.name in ['nt']:
+                cmd = self.buildPowershellCmd(h, hscriptCmd)
+
+            print ("CMD - vexsop:", cmd)
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             cmd_stdout, cmd_stderr = p.communicate()   
 
@@ -216,7 +246,7 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
             hscriptCmd = r'''opparm %s code \"%s\"''' % (h.nodePath,h.codeAsText)  # just and escape around codeAsText                         
             cmd = r'''%s "%s"''' % (h.hcommand,hscriptCmd)
 
-            print ("CMD inline", cmd)
+            print ("CMD inline:", cmd)
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             cmd_stdout, cmd_stderr = p.communicate()   
 
@@ -225,7 +255,11 @@ class SubTunnelCommand(sublime_plugin.WindowCommand):
 
             hscriptCmd = r'''opparm %s python \"%s\"''' % (h.nodePath,h.codeAsText)  # just and escape around codeAsText                          
             cmd = r'''%s "%s"''' % (h.hcommand,hscriptCmd)
-            print ("CMD python sop", cmd)
+
+            if os.name in ['nt']:
+                cmd = self.buildPowershellCmd(h, hscriptCmd)
+
+            print ("CMD python sop:", cmd)
  
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             cmd_stdout, cmd_stderr = p.communicate()     

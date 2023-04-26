@@ -1,1 +1,1 @@
-{"shelftool": "tool_1", "port": 10522, "hcommand": "/Library/Frameworks/Houdini.framework/Resources/bin/hcommand", "hipfile": "untitled.hip"}
+{"hipfile": null, "hcommand": "\"c:/Program Files/Side Effects Software/Houdini 18.5.694/bin/hcommand.exe\"", "shelftool": "tool_1", "port": 19993}
