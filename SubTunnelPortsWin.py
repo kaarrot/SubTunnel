@@ -44,6 +44,7 @@ def getPidsWin():
 
     return pids
 
+
 def subprocess_stream(cmd, cwd=None, str_to_match=None):
     """Executes command as a subprocess and immediately prints the output to stdout."""
 
@@ -52,36 +53,40 @@ def subprocess_stream(cmd, cwd=None, str_to_match=None):
     else:
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
-    
+    houdini_open_ports = []
+    timeout = 2
+    start_t = time.time()
     while True:
         output = process.stdout.readline()
-        print (output)
+        # print (output)  # DEBUG
         if output == b'' and process.poll() is not None:
             break
       
         output_str = output.decode("ascii").strip()
+        # Store lines which contain hodini/hescape.exe PID
         if str_to_match and output_str.find(str_to_match) != -1:
+            houdini_open_ports.append(output_str)
+        elif ( time.time() - start_t > timeout):
             print ("Interrupt", cmd)
             # Running netstat -a -o block, we need to interrupt as soom as we find the match
             process.terminate()
-            # return matching line
-            return output_str
+            # return matching lines
+            for i in houdini_open_ports:
+                print(i)
+            return houdini_open_ports
 
     err = process.communicate()
     if err:
         print(err)
+
+    return houdini_open_ports
 
 def getPortsWin(pids):
     ''' Having pid numbers find all the open ports of each houdini process '''
 
     cmd = ''' netstat -a -o'''
 
-    search_str = list(pids.keys())[0]
-    selection = subprocess_stream(cmd, None, search_str)
-
-    print("found process with port:", selection)
-    selection  = ' '.join([x.strip() for x in selection.split(' ') if x!=''])  # remove separator whitespaces
-    selection = selection.split('TCP')  # the line we are interested in start with TCP
+    print("Houdini PIDs", pids)
 
     for pid in pids.keys():
         # print ("Process pid:", pid)
